@@ -35,6 +35,8 @@ def recommend_article(embedding, article_id, n):
     rec = find_top_n(score,n)
     return rec
 
+# surprise package CV score
+
 if __name__=="__main__":
     eb = pd.read_pickle("pre_trained/articles_embeddings.pickle")
     id=12303
