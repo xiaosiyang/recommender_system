@@ -35,11 +35,47 @@ def recommend_article(embedding, article_id, n):
     rec = find_top_n(score,n)
     return rec
 
-# surprise package CV score
+
+def PopularityModel(data):
+    '''raw_data is the click data
+    read most recent 24 hour data'''
+    lc = data.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
+    return lc.click_article_id.values
+
+def ContentBaseModel(data, embedding, user_id):
+    # find most recent articles and recommend 5 use pre trained embeddings
+    data_sub = data[data['user_id']==user_id]
+    if len(data_sub) == 0: # new user
+        rec = PopularityModel(data)
+    else:
+        most_recent_article = data_sub.loc[data_sub['click_timestamp']==np.max(data_sub['click_timestamp']),['click_article_id']]
+        rec = recommend_article(embedding, most_recent_article,5)
+    return rec
+
+
 
 if __name__=="__main__":
     eb = pd.read_pickle("pre_trained/articles_embeddings.pickle")
     id=12303
     result = recommend_article(eb,id,5)
     print(result)
+
+"""
+# for a user not previously incorporated into the model, 
+# run the new user's interaction through the matrix factorization model, 
+# and estimate the latent factors
+"""
+
+# input user id (log in) 
+# list user id range, env, device_os, country
+
+# New user that has no article reading history
+## recommend the most popular articles trending
+### once he clicked some article, then there's data, 
+### we can use content based model to recommend to the user 
+# with articles that are similar with the one he clicked
+## the matrix factorizaton model could also be retrained with new user added in
+
+
+# New articles added in
 
