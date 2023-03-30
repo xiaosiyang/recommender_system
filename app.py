@@ -16,15 +16,20 @@ def get_pickle_az():
     array = blobConn().download('rec-model-v1','pre-trained-embeddings','pickle')
     return array
 # load embeddings when app starts
-#eb = get_pickle_az()
-eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
-latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
+
+#eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
+#latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
 def generate_recommendations(embedding,article_id):
     # Your code here to generate recommendations based on the book ID
     recommendations = recommend_article(embedding,article_id,5)
     return recommendations
 
 
+@app.route('/')
+def home():
+    return 'hello world'
+
+"""
 
 @app.route('/')
 def home():
@@ -36,7 +41,7 @@ def home():
         </form>   
     '''
 
-
+"""
 '''
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
@@ -56,6 +61,7 @@ def recommendations():
     else: # complete new user
         popularity_model()
 '''
+"""
 @app.route('/recommendations', methods=['POST'])
 def recommendations():       
     user_id = request.form['user_id']
@@ -74,7 +80,7 @@ def recommendations():
     return html
 
 
-
+"""
 if __name__ == '__main__':
     app.run(debug=True)
 
