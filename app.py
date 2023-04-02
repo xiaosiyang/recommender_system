@@ -3,8 +3,8 @@
 from flask import Flask, request
 import pandas as pd
 import numpy as np
-from recommender_system.model import recommend_article, PopularityModel, ContentBaseModel
-from recommender_system.blob import blobConn
+from model import recommend_article, PopularityModel, ContentBaseModel
+from blob import blobConn
 
 app = Flask(__name__)
 
