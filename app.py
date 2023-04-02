@@ -8,7 +8,7 @@ from recommender_system.blob import blobConn
 
 app = Flask(__name__)
 
-eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
+
 latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
 
 # previous version
@@ -63,6 +63,8 @@ def recommendations():
     user_id = request.form['user_id']
     country_id = request.form['country_id']
     region_id = request.form['region_id']
+    eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
+
     recommendations = ContentBaseModel(latest_clicks, eb, user_id, country_id, region_id)
     if recommendations == '404':
         html = '<label>Country and region combination doesn\'t exist</label>'
