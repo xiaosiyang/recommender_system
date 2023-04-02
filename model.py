@@ -58,13 +58,13 @@ def ContentBaseModel(data, embedding, user_id, country, region):
     return rec
 
 
-
+"""
 if __name__=="__main__":
     eb = pd.read_pickle("pre_trained/articles_embeddings.pickle")
     id=12303
     result = recommend_article(eb,id,5)
     print(result)
-
+"""
 """
 # for a user not previously incorporated into the model, 
 # run the new user's interaction through the matrix factorization model, 
