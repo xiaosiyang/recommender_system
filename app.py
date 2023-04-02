@@ -8,28 +8,20 @@ from blob import blobConn
 
 app = Flask(__name__)
 
-def get_pickle_local():
-    df = pd.read_pickle("pre_trained/pca_articles_embeddings.pickle")
-    return df
+eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
+latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
 
-def get_pickle_az():
-    array = blobConn().download('rec-model-v1','pre-trained-embeddings','pickle')
-    return array
-# load embeddings when app starts
-
-#eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
-#latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
+# previous version
 def generate_recommendations(embedding,article_id):
     # Your code here to generate recommendations based on the book ID
     recommendations = recommend_article(embedding,article_id,5)
     return recommendations
 
-
+'''
 @app.route('/')
 def home():
     return 'hello world'
-
-"""
+'''
 
 @app.route('/')
 def home():
@@ -37,11 +29,15 @@ def home():
          <form method="POST" action="/recommendations">
             <label for="user-id">Enter User ID:</label>
             <input type="text" id="user-id" name="user_id">
+            <label for="country-id">Enter Country ID:</label>
+            <input type="text" id="country-id" name="country_id">
+            <label for="region-id">Enter Region ID:</label>
+            <input type="text" id="region-id" name="region_id">            
             <button type="submit">Get recommendations</button>
         </form>   
     '''
 
-"""
+
 '''
 @app.route('/recommendations', methods=['POST'])
 def recommendations():
@@ -61,26 +57,30 @@ def recommendations():
     else: # complete new user
         popularity_model()
 '''
-"""
+
 @app.route('/recommendations', methods=['POST'])
 def recommendations():       
     user_id = request.form['user_id']
-    recommendations = ContentBaseModel(latest_clicks, eb, user_id)
-
-    html = '<table><tr><th>Rank</th><th>Recommended Article ID</th></tr>'
-    for id, article in enumerate(recommendations):
-        nid = id+1
-        html += f'<tr><td>{nid}</td><td>{article}</td></tr>'
-    html += '</table>'
-    
-    # Add a "go back" button to return to the home page
+    country_id = request.form['country_id']
+    region_id = request.form['region_id']
+    recommendations = ContentBaseModel(latest_clicks, eb, user_id, country_id, region_id)
+    if recommendations == '404':
+        html = '<label>Country and region combination doesn\'t exist</label>'
+    else:
+        html = '<table><tr><th>Rank</th><th>Recommended Article ID</th></tr>'
+        for id, article in enumerate(recommendations):
+            nid = id+1
+            html += f'<tr><td>{nid}</td><td>{article}</td></tr>'
+        html += '</table>'
+        
+        # Add a "go back" button to return to the home page
     html += '<br><button onclick="location.href=\'/\'">Go Back</button>'
     
     # Return the HTML page with the recommendations and "go back" button
     return html
 
 
-"""
+
 if __name__ == '__main__':
     app.run(debug=True)
 

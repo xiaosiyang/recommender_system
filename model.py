@@ -36,19 +36,24 @@ def recommend_article(embedding, article_id, n):
     return rec
 
 
-def PopularityModel(data):
-    '''raw_data is the click data
-    read most recent 24 hour data'''
-    lc = data.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
-    return lc.click_article_id.values
+def PopularityModel(df,country,region):
+    '''read most recent 24 hour data'''
+    country = int(country)
+    region = int(region)
+    df = df[(df['click_country']==country) & (df['click_region']==region)]
+    output = df.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
+    return output.click_article_id.values
 
-def ContentBaseModel(data, embedding, user_id):
+def ContentBaseModel(data, embedding, user_id, country, region):
     # find most recent articles and recommend 5 use pre trained embeddings
+    user_id = int(user_id)
     data_sub = data[data['user_id']==user_id]
     if len(data_sub) == 0: # new user
-        rec = PopularityModel(data)
+        rec = PopularityModel(data,country, region)
+        if len(rec) == 0:
+            return '404'
     else:
-        most_recent_article = data_sub.loc[data_sub['click_timestamp']==np.max(data_sub['click_timestamp']),['click_article_id']]
+        most_recent_article = data_sub.loc[data_sub['click_timestamp']==np.max(data_sub['click_timestamp']),'click_article_id']
         rec = recommend_article(embedding, most_recent_article,5)
     return rec
 
