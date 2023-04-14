@@ -7,6 +7,15 @@ import pickle
 from io import StringIO, BytesIO
 import pandas as pd
 
+# application id e96200c8-8ee3-420b-ba9e-721c7ed643bf
+# object id c6c3b79d-8c28-418e-8a70-785b579010c4
+# directory (tenent) id 7bf3642b-7ac1-48b3-af25-6ca1f0425788
+
+# secret value Zov8Q~XhtyXKJhj.JM~unJsig2GntpI8Hrf15cBt
+# secret ID ccff1bd5-0c29-402a-be64-79beb5a7bcaf
+
+#  KEY_VAULT_NAME=local_set_vault_key_article-rec
+
 class blobConn:
 
     def __init__(self):
