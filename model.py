@@ -40,8 +40,12 @@ def PopularityModel(df,country,region):
     '''read most recent 24 hour data'''
     country = int(country)
     region = int(region)
-    df = df[(df['click_country']==country) & (df['click_region']==region)]
-    output = df.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
+    df2 = df[(df['click_country']==country) & (df['click_region']==region)]
+    if len(df2) == 0:
+        df2 = df[df['click_country']==country]
+        output = df2.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
+    else:
+        output = df2.groupby(['click_article_id'],as_index = False).size().nlargest(5,'size').reset_index(drop=True)
     return output.click_article_id.values
 
 def ContentBaseModel(data, embedding, user_id, country, region):

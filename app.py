@@ -67,7 +67,7 @@ def recommendations():
 
     recommendations = ContentBaseModel(latest_clicks, eb, user_id, country_id, region_id)
     if recommendations == '404':
-        html = '<label>Country and region combination doesn\'t exist</label>'
+        html = '<label>No data available</label>'
     else:
         html = '<table><tr><th>Rank</th><th>Recommended Article ID</th></tr>'
         for id, article in enumerate(recommendations):
