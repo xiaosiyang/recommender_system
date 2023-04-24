@@ -22,7 +22,7 @@ def generate_recommendations(embedding,article_id):
 @app.route('/')
 def home():
     return 'hello world'
-    
+
 '''
 
 @app.route('/')
