@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Article Recommendations</title>
+    <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    -->
+  </head>
+  <body>
+    <h1>Article Recommendations</h1>
+    <h2>Content-Based Recommendations</h2>
+    <table>
+    <thead>
+        <tr>
+        <th>Article ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for article in content_based_recs %}
+        <tr>
+        <td>{{ article }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    <h2>Collaborative Filtering Recommendations</h2>
+    <table>
+    <thead>
+        <tr>
+        <th>Article ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for article in collab_filtering_recs %}
+        <tr>
+        <td>{{ article}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    <br>
+    <a href="/">Go back</a>
+  </body>
+</html>

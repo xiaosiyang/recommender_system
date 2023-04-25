@@ -1,86 +1,55 @@
 # flask app
 
-from flask import Flask, request
+from flask import Flask, request, render_template
 import pandas as pd
 import numpy as np
-from model import recommend_article, PopularityModel, ContentBaseModel
+from model import recommend_article, PopularityModel, ContentBaseModel, NMF_recommendation, get_sparse_matrix, NMFModel
 from blob import blobConn
+from constant import nmf_params
 
 app = Flask(__name__)
 
-
+# load previous calculated data and model from Azure
+# latest_clicks file are the click activities in the past day
 latest_clicks = blobConn().download('rec-model-v1','latest_clicks.csv','csv')
+# eb file is the pretrained embeddings used for content based model
 eb = blobConn().download('rec-model-v1','pca_article_embeddings.pickle','pickle')
+# nmf_train is user, article and click information used as input for NMF model traininig. 
+# It has user in [0, 10000] and article in [0, 100000]
+nmf_train = blobConn().download('rec-model-v1','nmf_train.csv','csv')
+# all_user_article_interaction has all the clicks data. 
+# Used for retrieving user history if the user doesn't in nmf training data.
+all_user_article_interaction = blobConn().download('rec-model-v1','all_user_article_interaction.csv','csv')
 
-# previous version
-def generate_recommendations(embedding,article_id):
-    # Your code here to generate recommendations based on the book ID
-    recommendations = recommend_article(embedding,article_id,5)
-    return recommendations
 
-'''
-@app.route('/')
-def home():
-    return 'hello world'
-
-'''
 
 @app.route('/')
 def home():
-    return '''
-         <form method="POST" action="/recommendations">
-            <label for="user-id">Enter User ID:</label>
-            <input type="text" id="user-id" name="user_id">
-            <label for="country-id">Enter Country ID:</label>
-            <input type="text" id="country-id" name="country_id">
-            <label for="region-id">Enter Region ID:</label>
-            <input type="text" id="region-id" name="region_id">            
-            <button type="submit">Get recommendations</button>
-        </form>   
-    '''
+    return render_template('home.html')
 
 
-'''
-@app.route('/recommendations', methods=['POST'])
+@app.route('/recommendations',methods=['POST'])
 def recommendations():
-    if user_id in train:
-
-        article_id = request.form['article_id']
-        # Generate recommendations based on the book ID
-        recommendations = generate_recommendations(eb,article_id)
-        # Convert the recommendations to a JSON response
-        #response = jsonify(recommendations)
-    elif user_id not in and user_id has history:
-        recent_article = get_most_recent_article()
-        if recent_article in eb:
-            generate_recommendations(eb, article_id)
-        else:
-            content_based_article_meta_data()
-    else: # complete new user
-        popularity_model()
-'''
-
-@app.route('/recommendations', methods=['POST'])
-def recommendations():       
+    # Get the user input from the form
     user_id = request.form['user_id']
     country_id = request.form['country_id']
     region_id = request.form['region_id']
+    # Get article recommendations from content-based model
+    content_based_recs = ContentBaseModel(latest_clicks, eb, user_id, country_id, region_id)
 
-    recommendations = ContentBaseModel(latest_clicks, eb, user_id, country_id, region_id)
-    if recommendations == '404':
-        html = '<label>No data available</label>'
-    else:
-        html = '<table><tr><th>Rank</th><th>Recommended Article ID</th></tr>'
-        for id, article in enumerate(recommendations):
-            nid = id+1
-            html += f'<tr><td>{nid}</td><td>{article}</td></tr>'
-        html += '</table>'
-        
-        # Add a "go back" button to return to the home page
-    html += '<br><button onclick="location.href=\'/\'">Go Back</button>'
-    
-    # Return the HTML page with the recommendations and "go back" button
-    return html
+    # Get article recommendations from collaborative filtering model
+
+    R_train = get_sparse_matrix(nmf_train, shape = [10001,100001])
+    R_pred, estimator = NMFModel(R_train, **nmf_params)
+    collab_filtering_recs = NMF_recommendation(all_user_article_interaction, estimator, R_train,R_pred, user_id)
+    if collab_filtering_recs == '404':
+        collab_filtering_recs = 'completely new user without any history, use popularity model'
+
+    # Render the recommendations template with the recommendation results
+    return render_template('recommendations.html',
+                           content_based_recs=content_based_recs,
+                           collab_filtering_recs=collab_filtering_recs)
+
 
 
 

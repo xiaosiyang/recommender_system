@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recommender System</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 60vh;
+        }
+        .content {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Welcome to the Article Recommender System!</h1>
+        <form method="POST" action="/recommendations">
+            <label for="user-id">Enter User ID:</label>
+            <input type="text" id="user-id" name="user_id">
+            <label for="country-id">Enter Country ID:</label>
+            <input type="text" id="country-id" name="country_id">
+            <label for="region-id">Enter Region ID:</label>
+            <input type="text" id="region-id" name="region_id">            
+            <button type="submit">Get recommendations</button>
+        </form>
+    </div>
+</body>
+</html>
