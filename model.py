@@ -88,14 +88,16 @@ def NMFModel(R, **params_NMF):
     """R is sparse matrix"""
     model = NMF(**params_NMF)
     W = model.fit_transform(R)
-    #H = model.components_
-    R_hat = model.inverse_transform(model.transform(R))
-    return R_hat, model
+    H = model.components_
+    R_hat = np.dot(W,H)
+    #R_hat_sparse = sparse.csc_matrix(R_hat)
+    return R_hat, H, model
 
 
-def NMF_recommendation(data, estimator, R_train, R_pred, user_id):
+def NMF_recommendation(data, pop, estimator, H, R_pred, user_id, country = None, region = None):
     """R_pred is array
         data is interaction data generated already
+        pop is data used for poplarity based model, i.e. click data in past day
     """
     user_id = int(user_id)
     if user_id < R_pred.shape[0]:
@@ -108,13 +110,14 @@ def NMF_recommendation(data, estimator, R_train, R_pred, user_id):
         user_df = data[(data['user_id'] == user_id) & (data['click_article_id']<=R_pred.shape[1])]
         if len(user_df) == 0:
             #completely new with no click history
-            return '404'
-        indexs = user_df.click_article_id.values
-        print(history.shape)
-        history[0][indexs] = 1
-        new_R = np.concatenate((R_train.toarray(),history),axis = 0)
-        new_R_hat = estimator.inverse_transform(estimator.transform(new_R))
-        sort_article = np.argsort(new_R_hat[-1])[::-1][:5]
+            sort_article = PopularityModel(pop,country, region)
+        else:
+            indexs = user_df.click_article_id.values
+            history[0][indexs] = 1
+            #new_R = np.concatenate((R_train.toarray(),history),axis = 0)
+            new_record = estimator.transform(history)
+            new_R_hat = np.dot(new_record,H)
+            sort_article = np.argsort(new_R_hat[-1])[::-1][:5]
 
     return sort_article
 
