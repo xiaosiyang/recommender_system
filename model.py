@@ -104,8 +104,8 @@ def NMF_recommendation(data, pop, estimator, H, R_pred, user_id, country = None,
         # user in prediction matrix
         sort_article = np.argsort(R_pred[user_id])[::-1][:5]
     else:
-        # user not in prediction matrix (0-10000)
-        # add it to train matrix to retrain the model
+        # user_id not in prediction matrix (0-10000), but has click history of article 1-10000
+        # convert click history to preference matrix, use existing model
         history = np.full((1,R_pred.shape[1]),0)
         user_df = data[(data['user_id'] == user_id) & (data['click_article_id']<=R_pred.shape[1])]
         if len(user_df) == 0:

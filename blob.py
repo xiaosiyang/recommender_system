@@ -6,6 +6,7 @@ from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 import pickle
 from io import StringIO, BytesIO
 import pandas as pd
+import numpy as np
 
 
 class blobConn:
@@ -34,7 +35,6 @@ class blobConn:
     def download_local(self, download_file_path, container_name, blob_name):
         container_client = self.blob_service_client.get_container_client(container= container_name)
         #blob_client = container_client.get_blob_client(blob_name)
- 
         # download the file
         with open(file=download_file_path, mode="wb") as download_file:
             download_file.write(container_client.download_blob(blob_name).readall())
@@ -47,6 +47,12 @@ class blobConn:
         elif file_type =='csv':
             blobstring = blob_client.download_blob()
             ar = pd.read_csv(StringIO(blobstring.content_as_text()))
+            '''
+        elif file_type == 'npy':
+            stream = io.BytesIO()
+            blob_service.get_blob_to_stream(container_name, blob_name, stream)
+            ar = np.frombuffer(stream.getbuffer())
+            '''
         else:
             ar = blob_client.download_blob().readall()
         return ar
