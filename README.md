@@ -25,7 +25,7 @@ Best model is selected by
 
 
 ## Architecture
-![alt text](https://github.com/xiaosiyang/recommender_system/blob/main/resource/arch_v2.svg)
+![alt text](https://github.com/xiaosiyang/recommender_system/blob/main/resource/arch_v3.svg)
 
 
 ## Test Example
